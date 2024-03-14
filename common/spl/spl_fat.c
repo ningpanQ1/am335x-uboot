@@ -61,6 +61,9 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 {
 	int err;
 	struct legacy_img_hdr *header;
+#if defined(CONFIG_TARGET_AM335X_ADVANTECH) && defined(CONFIG_SPL_BUILD)
+	fat_registered = 0;
+#endif
 
 	err = spl_register_fat_device(block_dev, partition);
 	if (err)

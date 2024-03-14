@@ -117,5 +117,48 @@ int tps65910_voltage_update(unsigned int module, unsigned char vddx_op_vol_sel)
 	if ((buf & TPS65910_OP_REG_SEL_MASK) != vddx_op_vol_sel)
 		return 1;
 
+#ifdef PMIC_VDD_ILMAX_1_5_A
+	ret = tps65910_read_reg(reg_offset - 1, &buf);
+	if (ret)
+		return ret;
+
+	buf |= TPS65910_REG_ILMAX_1_5_A;
+
+	ret = tps65910_write_reg(reg_offset - 1, &buf);
+	if (ret)
+		return ret;
+#endif
+
 	return 0;
 }
+
+#ifdef CONFIG_TARGET_AM335X_ADVANTECH
+int adv_tps65910_config(void)
+{
+	uchar buf;
+        int ret;
+
+	ret = tps65910_read_reg(TPS65910_DCDCCTRL_REG, &buf);
+	if (ret)
+		return ret;
+
+	buf &= ~(TPS65910_DCDCCTRL_REG_VDD1_PSKIP);
+
+	ret = tps65910_write_reg(TPS65910_DCDCCTRL_REG, &buf);
+	if (ret)
+		return ret;
+
+#ifdef PMIC_VIO_ILMAX_1_0_A
+        ret = tps65910_read_reg(TPS65910_VIO_REG, &buf);
+        if (ret)
+                return ret;
+
+        buf |= TPS65910_VIO_REG_ILMAX_1_0_A;
+
+        ret = tps65910_write_reg(TPS65910_VIO_REG, &buf);
+        if (ret)
+                return ret;
+#endif
+	return 0;
+}
+#endif

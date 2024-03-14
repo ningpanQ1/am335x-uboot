@@ -315,8 +315,12 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 	err = spl_load_image_fat(spl_image, bootdev, mmc_get_blk_desc(mmc),
 				 partition,
 				 filename);
+#ifdef CONFIG_TARGET_AM335X_ADVANTECH
+	return err;
+#else
 	if (!err)
 		return err;
+#endif
 #endif
 #endif
 #ifdef CONFIG_SPL_FS_EXT4
@@ -439,6 +443,10 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	}
 
 	boot_mode = spl_mmc_boot_mode(mmc, bootdev->boot_device);
+#if(defined(CONFIG_ADVANTECH_EMMC_BOOT) && defined(CONFIG_SPL_BUILD))
+	if(bootdev->boot_device == BOOT_DEVICE_MMC2 || bootdev->boot_device == BOOT_DEVICE_MMC1)
+		boot_mode = MMCSD_MODE_FS;
+#endif
 	err = -EINVAL;
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
