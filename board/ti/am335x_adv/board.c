@@ -244,7 +244,19 @@ void sdram_init(void)
 #endif
 
 #ifdef PCIE_PWR_EN
-	adv_pcie_timing();
+	gpio_request(PCIE_PWR_EN, "pcie_pwr_en");
+	gpio_direction_output(PCIE_PWR_EN, 0);
+	gpio_request(PCIE_RST, "pcie_rst");
+	gpio_direction_output(PCIE_RST, 0);
+	gpio_set_value(PCIE_PWR_EN, 1);
+	udelay(500000);
+	gpio_set_value(PCIE_RST, 1);
+#endif
+
+#ifdef ADV_WDT_EN
+	gpio_request(ADV_WDT_EN, "adv_wdt_en");
+	gpio_direction_output(ADV_WDT_EN, 0);
+	gpio_set_value(ADV_WDT_EN, 0);
 #endif
 
 	config_ddr(400, &ioregs_evm15, &ddr3_evm_data,
@@ -279,6 +291,7 @@ int board_init(void)
 	return 0;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 static int boardcfg_get_mac(uint8_t  ethnum)
 {
     int rc = 0;
@@ -353,6 +366,7 @@ out:
 
     return rc;
 }
+#endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
@@ -363,6 +377,12 @@ int board_late_init(void)
 	gpio_request(UART_POWER, "uart_power");
 	gpio_direction_output(UART_POWER, 0);
 	gpio_set_value(UART_POWER, 1);
+#endif
+
+#ifdef ADV_WDT_GPIO
+	gpio_request(ADV_WDT_GPIO, "adv_wdt_gpio");
+	gpio_direction_output(ADV_WDT_GPIO, 0);
+	gpio_set_value(ADV_WDT_GPIO, 0);
 #endif
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD))

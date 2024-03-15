@@ -251,14 +251,3 @@ void config_phy_reg(const char *devname, unsigned char addr)
 	miiphy_write(devname, addr, 0x1f, 0x0000);
 }
 
-void adv_pcie_timing(void)
-{
-	gpio_request(PCIE_PWR_EN, "pcie_pwr_en");
-	gpio_direction_output(PCIE_PWR_EN, 0);
-	gpio_request(PCIE_RST, "pcie_rst");
-	gpio_direction_output(PCIE_RST, 0);
-	gpio_set_value(PCIE_PWR_EN, 1);
-	udelay(500000);
-	gpio_set_value(PCIE_RST, 1);
-}
-
