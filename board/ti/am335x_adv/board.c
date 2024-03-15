@@ -368,6 +368,34 @@ out:
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
+static void board_set_boot_device(void)
+{
+    int dev = (*(int *)CONFIG_SPL_PARAM_ADDR);
+
+    switch(dev) {
+        case 0:
+				/* booting from MMC0(SDcard)*/
+                printf("booting from MMC1\n");
+                env_set("mmcdev","0");
+                env_set("bootcmd_adv_mmc","mmc dev 0; setenv bootpart 0:2; run mmcboot");
+                break;
+        case 1:
+                /* booting from MMC1(emmc)& No image in SDcard*/
+                printf("booting from MMC2\n");
+                env_set("mmcdev","1");
+                env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:2; run mmcboot");
+                break;
+        default:
+                /* booting from MMC1(emmc) & no insert SDcard.*/
+                printf("booting from MMC2\n");
+                env_set("mmcdev","1");
+                env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:2; run mmcboot");
+                break;
+        }
+}
+#endif
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -388,6 +416,8 @@ int board_late_init(void)
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD))
 	boardcfg_get_mac(CONFIG_ACTIVE_EPHY_NUM);
 #endif
+
+	board_set_boot_device();
 	return 0;
 }
 #endif

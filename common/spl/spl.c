@@ -688,6 +688,10 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 	int ret = -ENODEV;
 	int i;
 
+#ifdef CONFIG_TARGET_AM335X_ADVANTECH
+	int  * bootdevice = (int *)CONFIG_SPL_PARAM_ADDR;
+#endif
+
 	for (i = 0; i < count && spl_boot_list[i] != BOOT_DEVICE_NONE; i++) {
 		struct spl_image_loader *loader;
 		int bootdev = spl_boot_list[i];
@@ -710,6 +714,13 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 					     "Unsupported Boot Device!\n");
 				}
 			}
+
+#ifdef CONFIG_TARGET_AM335X_ADVANTECH
+			if(spl_boot_list[i] == BOOT_DEVICE_MMC1)
+				*bootdevice = 0;
+			else if(spl_boot_list[i] == BOOT_DEVICE_MMC2)
+				*bootdevice = 1;
+#endif
 			if (loader &&
 				!spl_load_image(spl_image, loader)) {
 				spl_image->boot_device = bootdev;
