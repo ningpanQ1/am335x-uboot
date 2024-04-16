@@ -23,6 +23,11 @@
 
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
+#define CONFIG_ADV_OTA_SUPPORT
+#ifdef CONFIG_ADV_OTA_SUPPORT
+#define CONFIG_CMD_READ
+#endif
+
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

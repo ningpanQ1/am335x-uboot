@@ -9,3 +9,9 @@ obj-y	:= mux.o
 endif
 
 obj-y	+= board.o
+
+ifndef CONFIG_SPL_BUILD
+ifdef CONFIG_ADV_OTA_SUPPORT
+obj-y	+= command.o bcb.o
+endif
+endif

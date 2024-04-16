@@ -373,6 +373,48 @@ static void board_set_boot_device(void)
 {
     int dev = (*(int *)CONFIG_SPL_PARAM_ADDR);
 
+#ifdef CONFIG_ADV_OTA_SUPPORT
+	int bcb_flag = 0;
+	if (dev == 1)
+    {
+        bcb_flag = recovery_check_and_clean_command();
+		printf("bcb_flag value is %d\n", bcb_flag);
+    }
+
+	switch(dev) {
+        case 0:
+				/* booting from MMC0(SDcard)*/
+                printf("booting from MMC1\n");
+                env_set("mmcdev","0");
+                env_set("bootcmd_adv_mmc","mmc dev 0; setenv bootpart 0:2; run mmcboot");
+                break;
+        case 1:
+                /* booting from MMC1(emmc)& No image in SDcard*/
+                printf("booting from MMC2\n");
+				if(bcb_flag) {
+					env_set("mmcdev","1");
+					env_set("finduuid","part uuid mmc ${mmcdev}:3 uuid");
+					env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:3; run mmcboot");
+				} else {	
+	                env_set("mmcdev","1");
+	                env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:2; run mmcboot");
+				}
+                break;
+        default:
+                /* booting from MMC1(emmc) & no insert SDcard.*/
+                printf("booting from MMC2\n");
+				if(bcb_flag) {
+                	env_set("mmcdev","1");
+					env_set("finduuid","part uuid mmc ${mmcdev}:3 uuid");
+                	env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:3; run mmcboot");
+				} else {
+               		env_set("mmcdev","1");
+                	env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:2; run mmcboot");
+				}
+                break;
+   }
+
+#else
     switch(dev) {
         case 0:
 				/* booting from MMC0(SDcard)*/
@@ -392,7 +434,8 @@ static void board_set_boot_device(void)
                 env_set("mmcdev","1");
                 env_set("bootcmd_adv_mmc","mmc dev 1; setenv bootpart 1:2; run mmcboot");
                 break;
-        }
+   }
+#endif
 }
 #endif
 
